@@ -14,7 +14,7 @@ The dashboard has four panels, each proving a specific NIST control:
 
 | Panel | Type | Control Proved | Time Range |
 |---|---|---|---|
-| Failed Logins — Last 24 Hours | Single value (color-coded by threshold) | AC-7 | Last 24 hours |
+| Failed Logins Last 24 Hours | Single value (color-coded by threshold) | AC-7 | Last 24 hours |
 | Brute Force Sources | Table | AC-7 | Last 7 days |
 | Admin Activity Audit | Table | AU-9 | Last 7 days |
 | Authentication Trends | Line chart | DE.CM-01 | Last 7 days |
@@ -58,7 +58,7 @@ Before pasting, replace all `[FILL: your-index-name]` placeholders with your act
 
   <row>
     <panel>
-      <title>Failed Logins - Last 7 day (AC-7)</title>
+      <title>Failed Logins - Last 24 hours (AC-7)</title>
       <single>
         <search>
           <query>index=[FILL: your-index-name] EventCode=4625 | stats count AS failed_logins</query>
