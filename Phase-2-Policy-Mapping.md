@@ -1,17 +1,10 @@
----
-title: Phase 2 - Policy Mapping
-lab_id: "[FILL: Your Lab ID]"
-phase: 2
-type: lab-phase
-status: complete
-created: "[FILL: YYYY-MM-DD]"
-tags: [splunk, nist, grc, lab]
----
+# Phase 2 Policy Mapping
 
-**Time estimate:** 15–20 minutes
-**Goal:** Identify which policy statements require technical proof and map each one to the event data that proves it. No tools required — this is a reading and mapping exercise.
+- **Time estimate:** 15–20 minutes
+- **Goal:** Identify which policy statements require technical proof and map each one to the event data that proves it.
+- No tools required this is a reading and mapping exercise.
 
-← [Back to Lab Index](README.md)
+← [Back to Index](README.md)
 
 ---
 
@@ -36,11 +29,11 @@ Open that document. The relevant sections should cover:
 
 ---
 
-## Control 1: AC-7 — Login Attempt Limits
+## Control 1: AC-7 Login Attempt Limits
 
 **NIST SP 800-53 Control:** AC-7 requires that the system enforce a limit on consecutive invalid login attempts and lock or delay access when that limit is exceeded.
 
-**CSF 2.0 Function:** DE.AE-02 — Potentially adverse events are analyzed to better characterize them.
+**CSF 2.0 Function:** DE.AE-02 Potentially adverse events are analyzed to better characterize them.
 
 > **Policy Statement ([FILL: your-policy-document], Section [FILL: section]):**
 > "[FILL: paste the relevant policy language here — e.g. 'Failed login attempts from a single IP: 10 failures in 24 hours triggers an automated alert']"
@@ -64,18 +57,18 @@ Count of 4625 events grouped by `IpAddress` over your defined time window. A sou
 
 ---
 
-## Control 2: AU-9 — Protection of Audit Information
+## Control 2: AU-9 Protection of Audit Information
 
 **NIST SP 800-53 Control:** AU-9 requires that the system protect audit information and tools from unauthorized access, modification, and deletion.
 
-**CSF 2.0 Function:** DE.CM-03 — Personnel activity and technology usage are monitored to find potentially adverse events.
+**CSF 2.0 Function:** DE.CM-03 Personnel activity and technology usage are monitored to find potentially adverse events.
 
 > **Policy Statement ([FILL: your-policy-document], Section [FILL: section]):**
 > "[FILL: paste the relevant policy language here — e.g. 'New admin account created outside change window: Any occurrence triggers immediate investigation']"
 
 **What this means technically:**
 
-The policy commits to logging all admin account creation and modification events. Event IDs **4720** (account created) and **4722** (account enabled) are the triggers. Centralizing these in Splunk and displaying them in a dashboard panel proves the SIEM is tracking admin account lifecycle changes in real time — which is the audit trail AU-9 requires.
+The policy commits to logging all admin account creation and modification events. Event IDs **4720** (account created) and **4722** (account enabled) are the triggers. Centralizing these in Splunk and displaying them in a dashboard panel proves the SIEM is tracking admin account lifecycle changes in real time which is the audit trail AU-9 requires.
 
 **Event Data Required:**
 
@@ -93,14 +86,14 @@ All 4720 and 4722 events in the last 7 days, displayed in a table with timestamp
 
 ---
 
-## Control 3: DE.CM-01 — Continuous Authentication Monitoring
+## Control 3: DE.CM-01 Continuous Authentication Monitoring
 
 **NIST SP 800-53 Controls:** SI-4 (System Monitoring), AU-2 (Event Logging)
 
-**CSF 2.0 Function:** DE.CM-01 — Networks and services are monitored to find potentially adverse events.
+**CSF 2.0 Function:** DE.CM-01 Networks and services are monitored to find potentially adverse events.
 
 > **Policy Statement ([FILL: your-policy-document], Section [FILL: section]):**
-> "[FILL: paste the relevant policy language here — e.g. 'SIEM ingests logs from all in-scope sources in real time and correlates events to identify attack patterns']"
+> "[FILL: paste the relevant policy language here e.g. 'SIEM ingests logs from all in-scope sources in real time and correlates events to identify attack patterns']"
 
 **What this means technically:**
 
@@ -126,10 +119,10 @@ Counts of 4624 and 4625 events grouped by day over 7 days, displayed as a line c
 
 Document any policy commitments you are intentionally not proving in this lab, and why. This shows an auditor that the scope boundary is deliberate, not a gap.
 
-| Control | Policy Statement | Reason Deferred | Target Lab |
-|---|---|---|---|
-| [FILL: control] | [FILL: policy language] | [FILL: why it requires more complexity] | [FILL: future lab] |
-| [FILL: control] | [FILL: policy language] | [FILL: why it requires more complexity] | [FILL: future lab] |
+| Control | Policy Statement | Reason Deferred | 
+|---|---|---|
+| AC-2 (After-Hours Privileged Access) | Section 3.6: Privileged access outside business hours requires alerting and approval | Requires timezone-aware SPL queries and admin role classification. Needs live directory integration | 
+| AU-5 (Log Forwarding Validation) | Section 3.5: All security logs must forward to SIEM with heartbeat verification | Cannot simulate live forwarder without additional infrastructure. Requires actual Windows Event Forwarder or syslog agent. |
 
 > These are not gaps in the policy. They are commitments that require a more complex technical environment than a single-user local SIEM lab provides.
 
@@ -139,12 +132,12 @@ Document any policy commitments you are intentionally not proving in this lab, a
 
 This is the full traceability from policy to technical proof. Every row maps directly to a dashboard panel in Phase 5.
 
-| SP 800-53 Control | CSF 2.0 Function | Event ID | Standard Fields | Policy Section | Detection Logic | Dashboard Panel |
-|---|---|---|---|---|---|---|
-| AC-7 | DE.AE-02 | 4625 | `IpAddress`, `SubjectUserName` | [FILL] | Count failures/IP, last 24h — alert if ≥ [FILL: threshold] | Panel 1: Single value |
-| AC-7 | DE.AE-02 | 4625 | `IpAddress`, `SubjectUserName` | [FILL] | Top IPs by failure count, last 24h | Panel 2: Brute Force table |
-| AU-9 | DE.CM-03 | 4720, 4722 | `SubjectUserName`, `TargetUserName` | [FILL] | All account creation/enable events, last 7d | Panel 3: Admin Activity table |
-| DE.CM-01 | DE.CM-01 | 4624, 4625 | `IpAddress`, `SubjectUserName` | [FILL] | Success vs. failure trend by day, last 7d | Panel 4: Line chart |
+| SP 800-53 Control | CSF 2.0 Function | Event ID | Standard Fields | Detection Logic | Dashboard Panel |
+|---|---|---|---|---|---|
+| AC-7 | DE.AE-02 | 4625 | `IpAddress`, `SubjectUserName` | Count failures/IP, last 24h alert if ≥ [FILL: threshold] | Panel 1: Single value |
+| AC-7 | DE.AE-02 | 4625 | `IpAddress`, `SubjectUserName` | Top IPs by failure count, last 24h | Panel 2: Brute Force table |
+| AU-9 | DE.CM-03 | 4720, 4722 | `SubjectUserName`, `TargetUserName` | All account creation/enable events, last 7d | Panel 3: Admin Activity table |
+| DE.CM-01 | DE.CM-01 | 4624, 4625 | `IpAddress`, `SubjectUserName` | Success vs. failure trend by day, last 7d | Panel 4: Line chart |
 
 ---
 
