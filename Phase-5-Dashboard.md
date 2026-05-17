@@ -1,17 +1,10 @@
----
-title: Phase 5 - Dashboard
-lab_id: "[FILL: Your Lab ID]"
-phase: 5
-type: lab-phase
-status: complete
-created: "[FILL: YYYY-MM-DD]"
-tags: [splunk, dashboard, xml, lab]
----
 
-**Time estimate:** 15–20 minutes
-**Goal:** Import the Splunk dashboard XML and confirm all four panels render with live data.
+# Phase 5 Dashboard
 
-← [Back to Lab Index](README.md)
+- **Time estimate:** 15–20 minutes
+- **Goal:** Import the Splunk dashboard XML and confirm all four panels render with live data.
+
+← [Back to Index](README.md)
 
 ---
 
@@ -28,7 +21,7 @@ The dashboard has four panels, each proving a specific NIST control:
 
 ---
 
-## Step 1 — Create a New Dashboard
+## Step 1 Create a New Dashboard
 
 1. In the Splunk UI, click **Search & Reporting**
 2. Click **Dashboards** in the top navigation
@@ -46,7 +39,7 @@ The dashboard has four panels, each proving a specific NIST control:
 
 ---
 
-## Step 2 — Switch to Source View
+## Step 2 Switch to Source View
 
 1. In the dashboard editor, click the **Source** button (top right, `< >` icon)
 2. Select all existing content and delete it
@@ -65,7 +58,7 @@ Before pasting, replace all `[FILL: your-index-name]` placeholders with your act
 
   <row>
     <panel>
-      <title>Failed Logins — Last 24 Hours (AC-7)</title>
+      <title>Failed Logins - Last 7 day (AC-7)</title>
       <single>
         <search>
           <query>index=[FILL: your-index-name] EventCode=4625 | stats count AS failed_logins</query>
@@ -84,7 +77,7 @@ Before pasting, replace all `[FILL: your-index-name]` placeholders with your act
     </panel>
 
     <panel>
-      <title>Brute Force Sources — IPs with [FILL: threshold]+ Failures (AC-7)</title>
+      <title>Brute Force Sources - IPs with [FILL: threshold]+ Failures (AC-7)</title>
       <table>
         <search>
           <query>index=[FILL: your-index-name] EventCode=4625 | stats count AS failures BY IpAddress | sort - failures | where failures >= [FILL: your-threshold] | rename IpAddress AS "Source IP", failures AS "Failed Attempts"</query>
@@ -99,7 +92,7 @@ Before pasting, replace all `[FILL: your-index-name]` placeholders with your act
 
   <row>
     <panel>
-      <title>Admin Activity Audit — Account Creation and Modification (AU-9)</title>
+      <title>Admin Activity Audit - Account Creation and Modification (AU-9)</title>
       <table>
         <search>
           <query>index=[FILL: your-index-name] (EventCode=4720 OR EventCode=4722) | eval event_type=case(EventCode="4720", "Account Created", EventCode="4722", "Account Enabled", true(), "Unknown") | eval Timestamp=strftime(_time, "%Y-%m-%d %H:%M:%S") | table Timestamp, event_type, SubjectUserName, TargetUserName, Message | sort - Timestamp | rename event_type AS "Event Type", SubjectUserName AS "Performed By", TargetUserName AS "Target Account", Message AS "Details"</query>
@@ -114,7 +107,7 @@ Before pasting, replace all `[FILL: your-index-name]` placeholders with your act
 
   <row>
     <panel>
-      <title>Authentication Trends — 7 Days (DE.CM-01)</title>
+      <title>Authentication Trends - 7 Days (DE.CM-01)</title>
       <chart>
         <search>
           <query>index=[FILL: your-index-name] (EventCode=4624 OR EventCode=4625) | eval auth_result=case(EventCode="4624", "Success", EventCode="4625", "Failure", true(), "Unknown") | timechart span=1d count BY auth_result</query>
@@ -136,7 +129,7 @@ Before pasting, replace all `[FILL: your-index-name]` placeholders with your act
 
 ---
 
-## Step 4 — Save and Preview
+## Step 4 Save and Preview
 
 1. Click **Save**
 2. Click **Back** to exit edit mode
@@ -148,14 +141,16 @@ Before pasting, replace all `[FILL: your-index-name]` placeholders with your act
 - Panel 3: A table with account creation and enable events, readable timestamps
 - Panel 4: A line chart with two lines (Success and Failure) over 7 days
 
-[INSERT SCREENSHOT: Complete dashboard with all four panels visible]
+Complete dashboard with all four panels visible
+<img width="1080" height="1033" alt="image" src="https://github.com/user-attachments/assets/889af112-4807-4115-b8a0-957e66907b3d" />
+
 
 ---
 
 ## Troubleshooting
 
 **Panel 1 is green (not red/orange):**
-The count is below your threshold, which means "Last 24 hours" is not catching your failure events. This happens if you ran `generate_logs.py` more than 24 hours ago — re-run the script to refresh events.
+The count is below your threshold, which means "Last 24 hours" is not catching your failure events. This happens if you ran `generate_logs.py` more than 24 hours ago re-run the script to refresh events.
 
 Color thresholds in the XML are:
 - 0 to 4: green (`0x53A051`)
@@ -176,70 +171,6 @@ The `strftime` eval is missing or malformed. Confirm `| eval Timestamp=strftime(
 
 **Panel 4 shows only one point on the chart:**
 Historical events did not spread correctly. Check: `index=[FILL: your-index-name] earliest=-7d@d | stats count by date_mday`. If you see only one date, re-run `generate_logs.py`.
-
----
-
-## What Went Wrong: Phase 5 Dead Ends
-
-### Dead End 1: Wrong Field Names in XML (Empty Panels)
-
-**What happened:** The XML queries used generic normalized field names (`src_ip`, `user`, `target_user`) that did not match the actual extracted field names.
-
-**Result:** Both panels rendered with zero rows despite events existing in the index.
-
-**Why:** Splunk uses the field names as they appear in the JSON payload. The Python script uses Windows standard naming. Any mismatch returns no results — no error, just silence.
-
-**Fix:** Always verify actual field names before writing dashboard queries:
-
-```spl
-index=[FILL: your-index-name] | fieldsummary
-```
-
-Common mismatches:
-
-| Wrong (generic) | Correct (Windows standard) |
-|---|---|
-| `src_ip` | `IpAddress` |
-| `user` | `SubjectUserName` |
-| `target_user` | `TargetUserName` |
-
-**Lesson:** Run `fieldsummary` or `fields *` first. Copy exact field names into your XML.
-
----
-
-### Dead End 2: Using `<form>` Instead of `<dashboard>`
-
-**What happened:** The root element was changed from `<dashboard>` to `<form>` to add a time picker input.
-
-**Result:** Splunk rendered a search bar labeled "No title" above every panel.
-
-**Why:** In Classic Dashboards, `<form>` renders an interactive search bar above each panel. This is designed for parameterized dashboards with user-controlled inputs — not for a compliance dashboard with fixed time ranges.
-
-**Fix:** Keep the root element as `<dashboard version="1.1">`. Set time ranges inside each panel's `<search>` block using `<earliest>` and `<latest>`.
-
-**Lesson:** Use `<dashboard>` for display dashboards with fixed time ranges. Use `<form>` only when you need user-controlled input fields.
-
----
-
-## Understanding the XML Structure
-
-**Single value panel color logic:**
-
-```xml
-<option name="rangeValues">[0,5,10]</option>
-<option name="rangeColors">["0x53A051","0xF8BE34","0xF1813F","0xDC4E41"]</option>
-```
-
-`rangeValues` defines breakpoints. `rangeColors` defines one color per range plus one additional for values above the last breakpoint. With the defaults above: 0–4 = green, 5–9 = yellow, 10–14 = orange, 15+ = red.
-
-**`<earliest>` and `<latest>`:**
-Set the time range for each panel's search independently. Panel 1 uses `-24h` because AC-7 is a 24-hour detection window. Panels 2, 3, and 4 use `-7d` to capture events spread across the full dataset.
-
-**`timechart span=1d`:**
-Groups events into 1-day buckets. Change to `1h` for hourly granularity.
-
-**`strftime(_time, "%Y-%m-%d %H:%M:%S")`:**
-Converts Splunk's internal Unix timestamp into a readable date string. Without this, `_time` in a `table` command displays as a large integer.
 
 ---
 
