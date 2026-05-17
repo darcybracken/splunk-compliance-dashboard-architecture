@@ -1,15 +1,9 @@
----
-title: Phase 4 - SPL Queries
-lab_id: "[FILL: Your Lab ID]"
-phase: 4
-type: lab-phase
-status: complete
-created: "[FILL: YYYY-MM-DD]"
-tags: [splunk, spl, lab]
----
 
-**Time estimate:** 30–45 minutes
-**Goal:** Build and test all four SPL queries in Splunk Search. Each query must return the expected output before you move to Phase 5.
+# Phase 4 SPL Queries
+
+
+- **Time estimate:** 30-45 minutes
+- **Goal:** Build and test all four SPL queries in Splunk Search. Each query must return the expected output before you move to Phase 5.
 
 ← [Back to Lab Index](README.md)
 
@@ -24,15 +18,15 @@ For each query:
 4. Run it and compare your output to the expected result
 5. Check the box in the checkpoint at the end when it matches
 
-Do not move to Phase 5 until all four queries return expected results. The dashboard in Phase 5 is built directly from these queries — if they are broken, the panels will be empty.
+Do not move to Phase 5 until all four queries return expected results. The dashboard in Phase 5 is built directly from these queries if they are broken, the panels will be empty.
 
 ---
 
 ## Query 1: Failed Logins Count (AC-7)
 
-**NIST Control:** AC-7 — Login Attempt Limits
-**Policy Reference:** [FILL: your policy section] — e.g. "10 failed logins from a single IP in 24 hours triggers an alert"
-**Dashboard Panel:** Panel 1 — Failed Logins Single Value
+**NIST Control:** AC-7 Login Attempt Limits
+**Policy Reference:** e.g. "10 failed logins from a single IP in 24 hours triggers an alert"
+**Dashboard Panel:** Panel 1 Failed Logins Single Value
 
 **Time range:** Last 24 hours
 
@@ -45,7 +39,9 @@ index=[FILL: your-index-name] EventCode=4625
 
 A single number representing total failed login events in the last 24 hours. This number should exceed your policy threshold (e.g. 10) to demonstrate the detection is active.
 
-[INSERT SCREENSHOT: Splunk single value query result]
+Splunk single value query result
+<img width="1915" height="966" alt="image" src="https://github.com/user-attachments/assets/ca8f2751-d1ff-46ab-88e8-ffc37076f5d5" />
+
 
 > **Why this matters:**
 > This is the number displayed on the single-value panel. When it exceeds your threshold, the panel turns red — proving the threshold defined in your policy is being actively monitored.
@@ -54,9 +50,9 @@ A single number representing total failed login events in the last 24 hours. Thi
 
 ## Query 2: Brute Force Source Table (AC-7)
 
-**NIST Control:** AC-7 — Login Attempt Limits
-**Policy Reference:** [FILL: your policy section] — detect brute force by source IP
-**Dashboard Panel:** Panel 2 — Brute Force Sources Table
+**NIST Control:** AC-7 Login Attempt Limits
+**Policy Reference:** detect brute force by source IP
+**Dashboard Panel:** Panel 2 Brute Force Sources Table
 
 **Time range:** Last 7 days
 
@@ -76,8 +72,6 @@ index=[FILL: your-index-name] EventCode=4625
 
 Only IPs at or above your threshold should appear. All others are filtered by the `where` clause.
 
-[INSERT SCREENSHOT: Brute force source table]
-
 **If no results appear:**
 - Remove the `where` clause temporarily to see all IPs and their counts
 - Confirm your test IP is in the data: `index=[FILL: your-index-name] EventCode=4625 IpAddress="[FILL: your-test-ip]"`
@@ -89,9 +83,9 @@ Only IPs at or above your threshold should appear. All others are filtered by th
 
 ## Query 3: Admin Activity Audit (AU-9)
 
-**NIST Control:** AU-9 — Protection of Audit Information
-**Policy Reference:** [FILL: your policy section] — e.g. "New admin account created outside change window triggers immediate investigation"
-**Dashboard Panel:** Panel 3 — Admin Activity Audit Table
+**NIST Control:** AU-9 Protection of Audit Information
+**Policy Reference:** e.g. "New admin account created outside change window triggers immediate investigation"
+**Dashboard Panel:** Panel 3 Admin Activity Audit Table
 
 **Time range:** Last 7 days
 
@@ -103,7 +97,7 @@ index=[FILL: your-index-name] (EventCode=4720 OR EventCode=4722)
 | rename _time AS "Timestamp", event_type AS "Event Type", SubjectUserName AS "Performed By", TargetUserName AS "Target Account", Message AS "Details"
 ```
 
-**Expected output ([FILL: expected row count] rows):**
+**Expected output:**
 
 | Timestamp | Event Type | Performed By | Target Account | Details |
 |---|---|---|---|---|
@@ -121,9 +115,9 @@ index=[FILL: your-index-name] (EventCode=4720 OR EventCode=4722)
 
 ## Query 4: Authentication Trends (DE.CM-01)
 
-**NIST Control:** DE.CM-01 — Continuous Monitoring, DE.AE-02
-**Policy Reference:** [FILL: your policy section] — e.g. "SIEM ingests logs in real time and correlates events across sources"
-**Dashboard Panel:** Panel 4 — Authentication Trends Line Chart
+**NIST Control:** DE.CM-01 Continuous Monitoring, DE.AE-02
+**Policy Reference:** e.g. "SIEM ingests logs in real time and correlates events across sources"
+**Dashboard Panel:** Panel 4 Authentication Trends Line Chart
 
 **Time range:** Last 7 days
 
@@ -135,7 +129,7 @@ index=[FILL: your-index-name] (EventCode=4624 OR EventCode=4625)
 
 **Expected output:**
 
-One row per day with two columns — `Success` and `Failure`. The day you ran the bulk data generation should show a spike in failures. Earlier days should show normal ratios.
+One row per day with two columns `Success` and `Failure`. The day you ran the bulk data generation should show a spike in failures. Earlier days should show normal ratios.
 
 | _time | Failure | Success |
 |---|---|---|
@@ -144,11 +138,10 @@ One row per day with two columns — `Success` and `Failure`. The day you ran th
 | ... | ... | ... |
 | [FILL: today] | [FILL: high count] | [FILL: count] |
 
-[INSERT SCREENSHOT: Authentication trends timechart output]
 
 **If the chart shows only one day:**
 - Check historical events actually landed: `index=[FILL: your-index-name] earliest=-7d@d | stats count by date_mday`
-- If you see only one date, re-run `generate_logs.py` — the timestamp spread may not have worked correctly
+- If you see only one date, re-run `generate_logs.py` the timestamp spread may not have worked correctly
 
 > **`timechart` vs `stats`:**
 > `timechart` is Splunk's built-in time-bucketing command. `span=1d` groups events by day and automatically creates one column per value of the `BY` field. Use `timechart` for any trend visualization.
