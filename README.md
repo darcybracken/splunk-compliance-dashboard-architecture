@@ -99,5 +99,5 @@ Built on macOS (Apple Silicon M4). Splunk installed natively via DMG Docker does
 
 ## Related Work
 
-- [FILL: link to your ISMS lab or policy document if public]
+- [ISMS Portfolio Project: NIST CSF 2.0](https://github.com/darcybracken/isms-nist-csf-fincorp)
 - [My Linkedin](www.linkedin.com/in/darcyvbracken)
