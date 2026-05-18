@@ -181,7 +181,6 @@ Historical events did not spread correctly. Check: `index=[FILL: your-index-name
 - [ ] Panel 2 shows your brute-force IP with a high failure count
 - [ ] Panel 3 shows account creation and enable events with readable timestamps
 - [ ] Panel 4 shows a line chart with both Success and Failure lines over 7 days
-- [ ] Screenshot taken and saved as `screenshots/nist-compliance-dashboard.png`
 
 ---
 
