@@ -26,19 +26,17 @@ screenshots/nist-compliance-dashboard.png <img width="1066" height="742" alt="ni
 ## Repository Structure
 
 ```
-Lab-[FILL: ID]-Splunk-NIST-Validation/
-├── README.md                         ← You are here
+Splunk-NIST-Validation/
+├── FINDINGS.ED
+├── LESSONS-LEARNED.md                ← Every failure, why it happened, how I fixed it
 ├── Phase-1-Environment-Setup.md      ← Splunk install, HEC config, dead ends
 ├── Phase-2-Policy-Mapping.md         ← Control → Event ID → SPL traceability
 ├── Phase-3-Data-Generation.md        ← generate_logs.py walkthrough and verification
 ├── Phase-4-SPL-Queries.md            ← All four queries with expected output
 ├── Phase-5-Dashboard.md              ← XML import, troubleshooting, XML breakdown
 ├── Phase-6-Documentation-Closure.md  ← Traceability matrix, audit chain walkthrough
-├── generate_logs.py                  ← Python script: generates 500 synthetic events
-├── dashboard.xml                     ← Splunk Classic Dashboard XML (importable)
-├── LESSONS-LEARNED.md                ← Every failure, why it happened, how I fixed it
-└── screenshots/
-    └── nist-compliance-dashboard.png ← Portfolio evidence
+└── README.md                         ← You are here
+
 ```
 
 ---
@@ -60,7 +58,7 @@ Lab-[FILL: ID]-Splunk-NIST-Validation/
 
 | Tool | Purpose |
 |---|---|
-| Splunk Enterprise [FILL: version] | SIEM event ingestion, search, dashboard |
+| Splunk Enterprise | SIEM event ingestion, search, dashboard |
 | Python 3 | Log generator (`generate_logs.py`) |
 | SPL (Splunk Processing Language) | Query and dashboard logic |
 | HEC (HTTP Event Collector) | REST-based event ingestion |
