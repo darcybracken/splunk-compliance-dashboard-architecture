@@ -1,17 +1,14 @@
 # Findings
 
-**Lab:** NIST Control Validation with Splunk
-**Date:** 2026-05-14
-**Author:** D'Arcy Bracken
-**GitHub:** github.com/darcybracken
+- **Lab:** NIST Control Validation with Splunk
+- **Date:** 2026-05-14
+- **Author:** D'Arcy Bracken
 
----
 
 ## Summary
 
 Six non-obvious technical findings discovered during Lab-009, each representing a gap between documentation or assumption and actual behavior in Splunk 10.2.3 on macOS (Apple Silicon, Rosetta 2).
 
----
 
 ## Finding 1:Incorrect Data Formatting Blocks Log Ingestion String
 
