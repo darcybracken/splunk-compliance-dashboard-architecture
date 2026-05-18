@@ -1,4 +1,4 @@
-# Lab-009 Lessons Learned
+# Lessons Learned
 
 In my compliance logging project, I created a Splunk pipeline that takes in simulated Windows security events and puts them on a dashboard I designed. This document captures every significant failure I hit, why it happened, and how I fixed it.
 
@@ -13,15 +13,19 @@ Before I found the right way, I spent some time on three paths that didn’t lea
 **Docker (ARM64 Mac):**  I thought the official Splunk Docker image would run smoothly on my M4 MacBook Air. It doesn't. Splunk has not published ARM64-compatible images to Docker Hub. All available manifests are `linux/amd64`. The platform directive fails immediately.
 
 **Command-line download:** I tried pulling the installer directly:
+
 ```bash
 wget https://www.splunk.com/page/download/latest -O splunk-latest-macos.dmg
 ```
+
 This returned a 137 KB HTML redirect page instead of the 950 MB DMG. Splunk's download page is JavaScript-dependent and uses referrer-based gating. `curl -L` has the same problem.
 
 **Homebrew:**
+
 ```bash
 brew install splunk
 ```
+
 No formula exists. Enterprise software typically requires direct downloads or license management, not package managers.
 
 **What I learned:** Always check the official documentation before assuming a standard installation method works for Splunk on macOS, the standard `brew install` fails, leaving direct DMG downloads, command-line tarballs, or emulated Docker containers as the only reliable deployment paths.
@@ -37,11 +41,13 @@ HEC (HTTP Event Collector) is Splunk's mechanism for receiving log data over HTT
 The result: because HEC was incorrectly assigned to port `8000` (colliding with the web UI), every subsequent data-send attempt directed at the standard port `8088` returned a silent `connection refused` error. Splunk accepted the configuration layout without generating a system alert.
 
 **Fix:** Always manually verify the port field is set to `8088` (or your intended custom HEC port) before saving. After saving, verify HEC is actively listening and bypassing self-signed SSL warnings by running:
+
 ```bash
 curl -X POST https://localhost:8088/services/collector \
   -H "Authorization: Splunk YOUR_TOKEN_UUID_HERE" \
   -d '{"event": "test"}'
 ```
+
 A working HEC returns `{"text":"Success","code":0}`. Anything else means the interface endpoint is misconfigured.
 
 **What I learned:** A successful save in a UI does not mean the configuration is functionally valid. Test every technical integration point immediately after setup, rather than troubleshooting upstream after you have built dependencies on top of it.
@@ -145,6 +151,7 @@ The Admin Activity Audit panel showed timestamps like `1747267200` instead of `2
 Splunk stores time internally as a Unix integer. The `table` command renders `_time` as that raw number by default.
 
 **Fix:** **Fix:** To make sure compliance format is just right, use the `strftime` (string-format time) function inside an `eval` statement. This way, I can clearly tell the function how to format the integer before it gets sent to the final visualization table.
+
 ```spl
 | eval Timestamp=strftime(_time, "%Y-%m-%d %H:%M:%S")
 | table Timestamp, event_type, SubjectUserName, IpAddress
@@ -166,6 +173,7 @@ I wanted to add a time picker to the dashboard, so I changed the XML root elemen
 The `<form>` element is designed for parameterized, user-driven dashboards. It automatically injects search input UI elements. For a compliance dashboard with fixed time ranges per panel, it's the wrong element.
 
 **Fix:** Keep the root as `<dashboard>`. Set time ranges inside each panel's search block:
+
 ```xml
 <search>
   <earliest>-7d</earliest>
@@ -221,3 +229,5 @@ I found out that Splunk defaults to **Smart Mode** to toggle field discovery bas
 | **Unwanted inputs/search boxes** added to dashboard          | Altering the root XML tag to `<form>` forces Splunk to automatically generate a blank, global `<fieldset>` user-input header block.                   | Revert the root element to `<dashboard>` for hardcoded data horizons, or explicitly build out the `<fieldset>` inputs if a global controller is required. |
 | **Security anomaly panels** return zero results              | The dashboard panel query window (e.g., `-24h`) was tighter than the operational distribution window of the underlying log generator script.          | Shift the panel's time boundary to `-7d` to align the SIEM's query window with the simulation data's temporal distribution scale.                         |
 | **Field sidebar disappears** during search queries           | **Smart Mode** optimizes system performance by automatically suppressing the discovery of unreferenced fields when transforming commands are present. | Toggle the search execution drop-down to **Verbose Mode** when actively debugging data ingestion pipelines or validating fresh schemas.                   |
+
+
