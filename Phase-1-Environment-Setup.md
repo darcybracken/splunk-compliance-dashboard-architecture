@@ -1,4 +1,4 @@
-
+# Phase 1 Environment Setup
 - **Time spent:** ~45 minutes (including troubleshooting)
 - **Goal:** Splunk is running locally, your index exists, and HEC is accepting events on port 8088.
 - **Status:** Complete
